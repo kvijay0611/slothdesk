@@ -92,11 +92,19 @@ def test_safe_move_propagates_other_errors(tmp_path, monkeypatch):
     def boom(*a, **k):
         raise OSError(errno.EIO, "io")
 
-    monkeypatch.setattr(os, "link", boom)
     a = tmp_path / "a.txt"
     a.write_text("A")
-    with pytest.raises(OSError):
-        safe_move(a, tmp_path / "b.txt")
+    b = tmp_path / "b.txt"
+
+    # safe_move uses rename on Windows and hard links on POSIX.
+    operation = "rename" if os.name == "nt" else "link"
+    monkeypatch.setattr(os, operation, boom)
+
+    with pytest.raises(OSError, match="io"):
+        safe_move(a, b)
+
+    assert a.read_text() == "A"
+    assert not b.exists()
 
 
 # journal ---------------------------------------------------------------------

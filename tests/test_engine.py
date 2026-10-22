@@ -300,8 +300,15 @@ def test_apply_runs_reconcile_first(cfg, journal):
 
 # report ------------------------------------------------------------------------------
 def test_report_content_and_escaping(cfg, journal):
-    make_file(cfg.root, "a|b.png", b"x")
+    # Windows forbids "|" in filenames, so use a portable filename on disk.
+    make_file(cfg.root, "a_b.png", b"x")
     s = run_once(cfg, FakeClient(), journal, apply=True)
+
+    # Test Markdown escaping independently of filesystem filename restrictions.
+    journal._db.execute(
+        "UPDATE moves SET src=? WHERE run_id=?",
+        ("a|b.png", s.run_id),
+    )
     text = render_report(journal, s.run_id)
     assert "Moved **1**" in text and "a\\|b.png" in text
     assert f"slothdesk undo --run {s.run_id}" in text
