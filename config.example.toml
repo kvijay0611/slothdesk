@@ -1,0 +1,16 @@
+# Copy to <your folder>\.slothdesk\config.toml. Every key is optional.
+model = "qwen2.5:1.5b"                 # try "gemma3:1b" too; measure with evaluation/
+base_url = "http://127.0.0.1:11434"    # must be this machine unless allow_remote = true
+min_confidence = 0.6                   # below this, a file is left alone
+min_age_s = 120                        # ignore files modified more recently than this
+max_file_mb = 25
+max_files_per_run = 200
+text_chars = 1500                      # how much text the model sees per file
+timeout_s = 180
+max_retries = 2
+require_ac_power = true                # watch mode waits until plugged in
+max_cpu_percent = 60
+ocr = false                            # true = also read scanned PDFs and photos of documents
+ocr_pages = 2                          # PDF pages to OCR per file
+categories = ["Finance", "Study", "Medical", "Work", "Identity", "Personal", "Misc"]  # Misc required
+log_level = "INFO"
